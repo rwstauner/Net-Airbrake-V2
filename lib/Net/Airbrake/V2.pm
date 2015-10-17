@@ -118,10 +118,12 @@ sub convert_request {
         $self->_make_vars('cgi-data' => $req->{environment}),
       },
       'server-environment' => {
+        # Errbit accepts 'hostname' however it's not listed in the spec.
         'project-root'     => [ $req->{context}{rootDirectory} ],
         'app-version'      => [ $req->{context}{version} ],
         'environment-name' => [ $req->{context}{environment} ],
       },
+      # Errbit accepts 'framework'.
     }
   };
 
