@@ -24,11 +24,13 @@ sub BUILD {
   return;
 }
 
+# Change uri suffix for v2.
 sub _url {
   my ($self) = @_;
   $self->base_url . '/notifier_api/v2/notices';
 }
 
+# helper
 sub _make_vars {
   my ($self, $vars) = @_;
   return [
@@ -44,6 +46,22 @@ sub _make_vars {
     }
   ];
 }
+
+=method convert_request
+
+  $client->convert_request(\%v3_request);
+  Net::Airbrake::V2->convert_request(\%v3_request, \%config);
+
+Convert a v3 request (JSON) to v2 (XML).
+This rearranges the data structure as best it can.
+
+This can also be called as a class method
+if a config hash is passed, containing:
+
+=for :list
+* api_key
+
+=cut
 
 sub convert_request {
   my ($self, $req, $opts) = @_;
@@ -120,6 +138,12 @@ sub _xml_encode {
   return $xml;
 }
 
+=method convert_response
+
+Convert v2 response (XML) to v3 response (JSON).
+
+=cut
+
 sub convert_response {
   my ($self, $res) = @_;
 
@@ -178,7 +202,23 @@ sub convert_response {
 
 1;
 
+=for Pod::Coverage
+BUILD
+
+=for :stopwords
+Errbit
+
 =head1 SYNOPSIS
+
+  use Net::Airbrake::V2;
+
+  my $airbrake = Net::Airbrake::V2->new(
+      api_key    => 'xxxxxxx',
+      # project_id is not used.
+  );
+
+  eval { die 'Oops' };
+  $airbrake->notify($@);
 
 =head1 DESCRIPTION
 
@@ -188,6 +228,22 @@ This makes it usable with L<Errbit|https://errbit.github.io/errbit/>.
 
 B<Note>: This is currently based heavily on the internals of L<Net::Airbrake> (as of C<0.02>).
 This enables laziness at the cost of fragility.
+As such the implementation is subject to change.
+
+See L<Net::Airbrake> for descriptions of methods and arguments.
+
+=head1 VERSION DIFFERENCES
+
+Some data may be lost converting from v3 to v2.
+Specifically v2 does not have explicit places for:
+
+  errors/{i}/backtrace/{i}/column
+  context/os
+  context/language
+  context/userAgent
+  context/userId
+  context/userName
+  context/userEmail
 
 =head1 SEE ALSO
 
