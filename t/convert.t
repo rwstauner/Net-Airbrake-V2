@@ -69,6 +69,8 @@ XML
       url       => 'u',
       component => 'c',
       action    => 'a',
+      rootDirectory => '/tmp',
+      version       => '1.0',
     },
     params      => { p1 => 'p2' },
     session     => { s1 => 's2' },
@@ -121,7 +123,11 @@ XML
   vars_are($tx, 'session',  { 's1' => 's2' });
   vars_are($tx, 'cgi-data', { 'e1' => 'e2', x => 'y'});
 
-  $tx->is("/notice/server-environment/environment-name", 'test', 'env name');
+  tags_are($tx, 'server-environment' => {
+    'environment-name' => 'test',
+    'project-root'     => '/tmp',
+    'app-version'      => '1.0',
+  });
 };
 
 done_testing;

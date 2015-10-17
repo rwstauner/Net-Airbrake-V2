@@ -97,6 +97,8 @@ sub convert_request {
         'cgi-data' => $self->_make_vars($req->{environment}),
       },
       'server-environment' => {
+        'project-root'     => [ $req->{context}{rootDirectory} ],
+        'app-version'      => [ $req->{context}{version} ],
         'environment-name' => [ $req->{context}{environment} ],
       },
     }
