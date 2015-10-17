@@ -10,13 +10,17 @@ use parent 'Net::Airbrake';
 
 use XML::Simple qw(xml_out);
 
-sub new {
-  my $class = shift;
-  my $self;
-  $self = $class->SUPER::new(@_,
-    _ua => Net::Airbrake::V2::UserAgent->new(sub { $self }),
-  );
-  return $self;
+# Net::Airbrake uses Class::Tiny.
+sub BUILD {
+  my $self = shift;
+
+  # Pass simple args to avoid circular references.
+  $self->{_ua} = Net::Airbrake::V2::UserAgent->new({
+    mod     => ref $self,
+    api_key => $self->api_key,
+  });
+
+  return;
 }
 
 sub _url {
@@ -41,10 +45,12 @@ sub _make_vars {
 }
 
 sub from_v3 {
-  my ($self, $req) = @_;
+  my ($self, $req, $opts) = @_;
 
-  my $mod = ref($self) || $self;
-  my $api_key = $self->api_key;
+  $opts ||= {};
+
+  my $mod     = $opts->{mod} || ref($self) || $self;
+  my $api_key = $opts->{api_key} || $self->api_key;
 
   my $notice = {
     notice => {
@@ -109,16 +115,12 @@ sub from_v3 {
   use XML::Simple qw(xml_in);
 
   sub new {
-    bless { get_client => $_[1], }, $_[0];
-  }
-
-  sub client {
-    $_[0]->{client} ||= delete($_[0]->{get_client})->();
+    bless $_[1], $_[0];
   }
 
   sub ua {
     $_[0]->{ua} ||= do {
-      my $mod = ref($_[0]->client);
+      my $mod = $_[0]->{mod};
       HTTP::Tiny->new(
         agent   => join('/', $mod, $mod->VERSION || 0),
         timeout => 5,
@@ -126,11 +128,16 @@ sub from_v3 {
     };
   }
 
+  sub from_v3 {
+    my ($self, $req) = @_;
+    $self->{mod}->from_v3($req, { api_key => $self->{api_key} });
+  }
+
   sub request {
     my ($self, $method, $url, $req) = @_;
     my $ct = 'Content-Type';
 
-    $req->{content} = $self->client->from_v3( decode_json($req->{content}) );
+    $req->{content} = $self->from_v3( $req->{content} );
     $req->{headers}{ $ct } = 'application/xml';
 
     my $res = $self->ua->request($method, $url, $req);
