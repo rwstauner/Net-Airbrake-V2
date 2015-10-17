@@ -8,7 +8,8 @@ package Net::Airbrake::V2;
 
 use parent 'Net::Airbrake';
 
-use XML::Simple qw(xml_out);
+use JSON::MaybeXS qw(encode_json decode_json);
+use XML::Simple   qw(xml_in xml_out);
 
 # Net::Airbrake uses Class::Tiny.
 sub BUILD {
@@ -44,8 +45,11 @@ sub _make_vars {
   ];
 }
 
-sub from_v3 {
+sub convert_request {
   my ($self, $req, $opts) = @_;
+
+  my $string = !ref $req;
+  $req = decode_json($req) if $string;
 
   $opts ||= {};
 
@@ -98,6 +102,13 @@ sub from_v3 {
     }
   };
 
+  return $notice if !$string;
+  return $self->_xml_encode($notice);
+}
+
+sub _xml_encode {
+  my ($self, $notice) = @_;
+
   my $xml = xml_out($notice,
     RootName => undef,
     NoIndent => 1,
@@ -107,12 +118,18 @@ sub from_v3 {
   return $xml;
 }
 
+sub convert_response {
+  my ($self, $res) = @_;
+
+  # For consistnecy with convert_request.
+  return $res if ref $res;
+
+  return encode_json( xml_in($res) );
+}
+
 {
   package # no_index
     Net::Airbrake::V2::UserAgent;
-
-  use JSON::MaybeXS qw(encode_json decode_json);
-  use XML::Simple qw(xml_in);
 
   sub new {
     bless $_[1], $_[0];
@@ -128,16 +145,21 @@ sub from_v3 {
     };
   }
 
-  sub from_v3 {
-    my ($self, $req) = @_;
-    $self->{mod}->from_v3($req, { api_key => $self->{api_key} });
+  sub _convert_request {
+    my ($self, $msg) = @_;
+    $msg->{content} = $self->{mod}->convert_request($msg->{content}, { api_key => $self->{api_key} });
+  }
+
+  sub _convert_response {
+    my ($self, $msg) = @_;
+    $msg->{content} = $self->{mod}->convert_response($msg->{content});
   }
 
   sub request {
     my ($self, $method, $url, $req) = @_;
     my $ct = 'Content-Type';
 
-    $req->{content} = $self->from_v3( $req->{content} );
+    $self->_convert_request($req);
     $req->{headers}{ $ct } = 'application/xml';
 
     my $res = $self->ua->request($method, $url, $req);
@@ -145,7 +167,7 @@ sub from_v3 {
     # TODO: catch xml parse error.
     # TODO: check content type?
 
-    $res->{content} = encode_json( xml_in($res->{content}) );
+    $self->_convert_response($res);
     $res->{headers}{ $ct } = 'application/json';
 
     return $res;
