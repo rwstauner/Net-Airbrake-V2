@@ -33,6 +33,7 @@ sub _url {
 # helper
 sub _make_vars {
   my ($self, $parent, $vars) = @_;
+  $vars ||= {};
 
   return () if !keys %$vars;
 
@@ -44,7 +45,7 @@ sub _make_vars {
             key     => $_,
             content => $vars->{$_},
           }
-        } keys %{ $vars || {} }
+        } keys %{ $vars }
       ]
     }
   ]);
