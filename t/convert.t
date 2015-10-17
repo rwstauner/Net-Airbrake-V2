@@ -93,4 +93,18 @@ subtest 'minimal' => sub {
   )]);
 };
 
+subtest 'convert_*' => sub {
+  my $req = class()->convert_request({}, {api_key => 'ak'});
+
+  is ref($req), 'HASH', 'ref in, ref out';
+
+  is eval { $req->{notice}{'api-key'}[0] }, 'ak', 'data';
+
+  my $res = class()->convert_response({x => 'y'});
+
+  is ref($res), 'HASH', 'ref in, ref out';
+
+  is eval { $res->{x} }, 'y', 'data';
+};
+
 done_testing;

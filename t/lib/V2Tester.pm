@@ -11,6 +11,7 @@ use Test::XPath;
 use parent 'Exporter';
 our @EXPORT = (
   qw(
+    class
     notify
     $xml_root
     not_present
@@ -27,6 +28,8 @@ warn "Net::Airbrake VERSION may not be compatible"
   if Net::Airbrake->VERSION ne '0.02';
 
 our $xml_root = '/notice';
+
+sub class { $mod }
 
 sub not_present {
   my ($tx, $parent, $tags) = @_;
