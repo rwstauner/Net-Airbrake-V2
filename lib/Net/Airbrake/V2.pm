@@ -220,7 +220,7 @@ sub convert_response {
 =for Pod::Coverage
 BUILD
 
-=for :stopwords
+=for stopwords
 Errbit
 
 =head1 SYNOPSIS
@@ -239,7 +239,7 @@ Errbit
 
 API Compatible with L<Net::Airbrake> but converts v3 requests to v2 and then converts the response back.
 
-This makes it usable with L<Errbit|https://errbit.github.io/errbit/>.
+This makes it usable with L<Errbit|https://errbit.github.io/errbit/> C<< <= v0.3 >>.
 
 B<Note>: This is currently based heavily on the internals of L<Net::Airbrake> (as of C<0.02>).
 This enables laziness at the cost of fragility.
