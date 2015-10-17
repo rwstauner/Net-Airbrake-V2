@@ -1,6 +1,112 @@
+[![Build Status](https://travis-ci.org/rwstauner/Net-Airbrake-V2.svg?branch=master)](https://travis-ci.org/rwstauner/Net-Airbrake-V2)
+[![Coverage Status](https://coveralls.io/repos/rwstauner/Net-Airbrake-V2/badge.svg?branch=master)](https://coveralls.io/r/rwstauner/Net-Airbrake-V2?branch=master)
+[![Kwalitee status](http://cpants.cpanauthors.org/dist/Net-Airbrake-V2.png)](http://cpants.charsbar.org/dist/overview/Net-Airbrake-V2)
+
 # NAME
 
-Net::Airbrake::V2 - undef
+Net::Airbrake::V2 - Airbrake Notifier API V2 Client
+
+# VERSION
+
+version 0.01
+
+# SYNOPSIS
+
+    use Net::Airbrake::V2;
+
+    my $airbrake = Net::Airbrake::V2->new(
+        api_key    => 'xxxxxxx',
+        # project_id is not used.
+    );
+
+    eval { die 'Oops' };
+    $airbrake->notify($@);
+
+# DESCRIPTION
+
+API Compatible with [Net::Airbrake](https://metacpan.org/pod/Net::Airbrake) but converts v3 requests to v2 and then converts the response back.
+
+This makes it usable with [Errbit](https://errbit.github.io/errbit/) `<= v0.3`.
+
+**Note**: This is currently based heavily on the internals of [Net::Airbrake](https://metacpan.org/pod/Net::Airbrake) (as of `0.02`).
+This enables laziness at the cost of fragility.
+As such the implementation is subject to change.
+
+See [Net::Airbrake](https://metacpan.org/pod/Net::Airbrake) for descriptions of methods and arguments.
+
+# METHODS
+
+## convert\_request
+
+    $client->convert_request(\%v3_request);
+    Net::Airbrake::V2->convert_request(\%v3_request, \%config);
+
+Convert a v3 request (JSON) to v2 (XML).
+This rearranges the data structure as best it can.
+
+This can also be called as a class method
+if a config hash is passed, containing:
+
+- api\_key
+
+## convert\_response
+
+Convert v2 response (XML) to v3 response (JSON).
+
+# VERSION DIFFERENCES
+
+Some data may be lost converting from v3 to v2.
+Specifically v2 does not have explicit places for:
+
+    errors/{i}/backtrace/{i}/column
+    context/os
+    context/language
+    context/userAgent
+    context/userId
+    context/userName
+    context/userEmail
+
+# SEE ALSO
+
+- [Net::Airbrake](https://metacpan.org/pod/Net::Airbrake)
+- [Airbrake](https://airbrake.io)
+- [Airbrake Notifier API v2](https://help.airbrake.io/kb/api-2/notifier-api-v23)
+- [Errbit](https://errbit.github.io/errbit/)
+
+# SUPPORT
+
+## Perldoc
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Net::Airbrake::V2
+
+## Websites
+
+The following websites have more information about this module, and may be of help to you. As always,
+in addition to those websites please use your favorite search engine to discover more resources.
+
+- MetaCPAN
+
+    A modern, open-source CPAN search engine, useful to view POD in HTML format.
+
+    [http://metacpan.org/release/Net-Airbrake-V2](http://metacpan.org/release/Net-Airbrake-V2)
+
+## Bugs / Feature Requests
+
+Please report any bugs or feature requests by email to `bug-net-airbrake-v2 at rt.cpan.org`, or through
+the web interface at [https://rt.cpan.org/Public/Bug/Report.html?Queue=Net-Airbrake-V2](https://rt.cpan.org/Public/Bug/Report.html?Queue=Net-Airbrake-V2). You will be automatically notified of any
+progress on the request by the system.
+
+## Source Code
+
+[https://github.com/rwstauner/Net-Airbrake-V2](https://github.com/rwstauner/Net-Airbrake-V2)
+
+    git clone https://github.com/rwstauner/Net-Airbrake-V2.git
+
+# AUTHOR
+
+Randy Stauner &lt;rwstauner@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
