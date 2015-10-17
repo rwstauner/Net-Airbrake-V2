@@ -174,19 +174,29 @@ sub convert_response {
   sub _convert_request {
     my ($self, $msg) = @_;
     $msg->{content} = $self->{mod}->convert_request($msg->{content}, { api_key => $self->{api_key} });
+    $self->_change_content_type($msg, 'application/xml');
   }
 
   sub _convert_response {
     my ($self, $msg) = @_;
     $msg->{content} = $self->{mod}->convert_response($msg->{content});
+    $self->_change_content_type($msg, 'application/json');
+  }
+
+  # Find and update the content type regardless of capitalization/punctuation.
+  sub _change_content_type {
+    my ($self, $msg, $val) = @_;
+    my $headers = $msg->{headers};
+    foreach my $h ( keys %$headers ){
+      $headers->{ $h } = $val
+        if $h =~ /^content.type$/i;
+    }
   }
 
   sub request {
     my ($self, $method, $url, $req) = @_;
-    my $ct = 'Content-Type';
 
     $self->_convert_request($req);
-    $req->{headers}{ $ct } = 'application/xml';
 
     my $res = $self->ua->request($method, $url, $req);
 
@@ -194,7 +204,6 @@ sub convert_response {
     # TODO: check content type?
 
     $self->_convert_response($res);
-    $res->{headers}{ $ct } = 'application/json';
 
     return $res;
   }
