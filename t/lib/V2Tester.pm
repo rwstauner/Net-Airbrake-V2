@@ -13,6 +13,7 @@ our @EXPORT = (
   qw(
     notify
     $xml_root
+    not_present
     tags_are
     vars_are
   ),
@@ -26,6 +27,15 @@ warn "Net::Airbrake VERSION may not be compatible"
   if Net::Airbrake->VERSION ne '0.02';
 
 our $xml_root = '/notice';
+
+sub not_present {
+  my ($tx, $parent, $tags) = @_;
+  subtest "not present (in $parent)" => sub {
+    foreach my $tag ( @$tags ){
+      $tx->not_ok("$xml_root/$parent/$tag", $tag);
+    }
+  };
+}
 
 sub tags_are {
   my ($tx, $parent, $vals) = @_;

@@ -58,4 +58,39 @@ subtest 'full' => sub {
   });
 };
 
+subtest 'minimal' => sub {
+  my $test = notify({
+    config => {
+      environment_name => 'tiny',
+      base_url => 'https://example.com/err',
+    },
+    code => sub {
+      shift->notify('Oops');
+    },
+  });
+
+  my $tx = $test->{tx};
+
+  tags_are($tx, error => {
+    class   => 'error', # Net::Airbrake fabricates this.
+    message => 'Oops',
+  });
+
+  $tx->ok("$xml_root/error/backtrace", 'backtrace required');
+
+  not_present($tx, request => [qw(
+    url
+    component
+    action
+    params
+    session
+    cgi-data
+  )]);
+
+  not_present($tx, 'server-environment' => [qw(
+    project-root
+    app-version
+  )]);
+};
+
 done_testing;

@@ -32,8 +32,11 @@ sub _url {
 
 # helper
 sub _make_vars {
-  my ($self, $vars) = @_;
-  return [
+  my ($self, $parent, $vars) = @_;
+
+  return () if !keys %$vars;
+
+  return ($parent => [
     {
       var => [
         map {
@@ -44,7 +47,7 @@ sub _make_vars {
         } keys %{ $vars || {} }
       ]
     }
-  ];
+  ]);
 }
 
 =method convert_request
@@ -110,9 +113,9 @@ sub convert_request {
         url        => [ $req->{context}{url} ],
         component  => [ $req->{context}{component} ],
         action     => [ $req->{context}{action}    ],
-        params     => $self->_make_vars($req->{params}),
-        session    => $self->_make_vars($req->{session}),
-        'cgi-data' => $self->_make_vars($req->{environment}),
+        $self->_make_vars(params     => $req->{params}),
+        $self->_make_vars(session    => $req->{session}),
+        $self->_make_vars('cgi-data' => $req->{environment}),
       },
       'server-environment' => {
         'project-root'     => [ $req->{context}{rootDirectory} ],
@@ -132,6 +135,7 @@ sub _xml_encode {
   my $xml = xml_out($notice,
     RootName => undef,
     NoIndent => 1,
+    SuppressEmpty => 1,
     XMLDecl  => q[<?xml version="1.0" encoding="utf-8"?>],
   );
 
