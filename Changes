@@ -2,6 +2,8 @@ Revision history for Net-Airbrake-V2
 
 {{$NEXT}}
 
+  - Require Net::Airbrake 0.02 for 'base_url'.
+
 0.01      2015-10-17T17:18:43Z
 
   - Initial release

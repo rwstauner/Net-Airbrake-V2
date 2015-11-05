@@ -6,10 +6,11 @@ package Net::Airbrake::V2;
 
 # ABSTRACT: Airbrake Notifier API V2 Client
 
-use parent 'Net::Airbrake';
-
+use Net::Airbrake 0.02;
 use JSON::MaybeXS qw(encode_json decode_json);
 use XML::Simple   qw(xml_in xml_out);
+
+our @ISA = 'Net::Airbrake';
 
 # Net::Airbrake uses Class::Tiny.
 sub BUILD {
