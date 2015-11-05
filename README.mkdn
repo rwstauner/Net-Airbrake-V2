@@ -8,7 +8,7 @@ Net::Airbrake::V2 - Airbrake Notifier API V2 Client
 
 # VERSION
 
-version 0.01
+version 0.02
 
 # SYNOPSIS
 
