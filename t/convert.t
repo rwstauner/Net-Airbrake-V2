@@ -24,6 +24,10 @@ subtest 'full' => sub {
           p1 => 'p2',
           h1 => {
             k1 => 'pi',
+            k2 => ['g', 'g'],
+            'h<>3' => {
+              'a b' => [1, {c => 7, '&' => qq[<hi there="you\x95"/>], n => undef}],
+            }
           }
         },
         session     => { s1 => 's2' },
@@ -57,9 +61,14 @@ subtest 'full' => sub {
   vars_are($tx, 'params',   { 'p1' => 'p2' });
   vars_are($tx, 'params/var[@key="h1"]', {
     k1 => 'pi',
+    k2 => '["g","g"]',
+  });
+  vars_are($tx, 'params/var[@key="h1"]/var[@key="h<>3"]', {
+    'a b' => '[1,{"&" => "<hi there=\"you\x{95}\"/>","c" => 7,"n" => undef}]',
   });
 
   vars_are($tx, 'session',  { 's1' => 's2' });
+
   vars_are($tx, 'cgi-data', { 'e1' => 'e2', x => 'y'});
 
   tags_are($tx, 'server-environment' => {

@@ -48,7 +48,8 @@ sub _make_vars {
 sub _var_content {
   my ($self, $v) = @_;
 
-  return (content => $v) unless ref($v) eq 'HASH';
+  return (content => ref($v) ? $self->stringify_ref($v) : $v)
+    unless ref($v) eq 'HASH';
 
   return (
     var => [
@@ -60,6 +61,32 @@ sub _var_content {
       } keys %$v
     ]
   );
+}
+
+=method stringify_ref
+
+The values of the the "var" hashes ("params", "session", and "environment")
+that are references (other than hashes) will stringified.
+
+This is currently done with C<Data::Dumper>
+which is similar to the way the ruby gem dumps structures.
+The format is subject to change.
+
+=cut
+
+our $Dumper;
+sub stringify_ref {
+  my ($self, $value) = @_;
+  ($Dumper ||= do {
+    require Data::Dumper;
+    Data::Dumper->new([])
+      ->Indent(0)
+      ->Useqq(1)
+      ->Terse(1)
+      ->Sortkeys(1)
+  })
+    ->Values([$value])
+    ->Dump;
 }
 
 =method convert_request
