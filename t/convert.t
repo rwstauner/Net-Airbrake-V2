@@ -19,7 +19,13 @@ subtest 'full' => sub {
           rootDirectory => '/tmp',
           version       => '1.0',
         },
-        params      => { p1 => 'p2' },
+        # Test nested structures.
+        params      => {
+          p1 => 'p2',
+          h1 => {
+            k1 => 'pi',
+          }
+        },
         session     => { s1 => 's2' },
         # Test more than one var.
         environment => { e1 => 'e2', x => 'y' },
@@ -28,6 +34,7 @@ subtest 'full' => sub {
   });
 
   my $tx = $test->{tx};
+  #diag $test->{xml};
 
   tags_are($tx, error => {
     class   => 'CORE::die', # Net::Airbrake fabricates this.
@@ -48,6 +55,10 @@ subtest 'full' => sub {
   });
 
   vars_are($tx, 'params',   { 'p1' => 'p2' });
+  vars_are($tx, 'params/var[@key="h1"]', {
+    k1 => 'pi',
+  });
+
   vars_are($tx, 'session',  { 's1' => 's2' });
   vars_are($tx, 'cgi-data', { 'e1' => 'e2', x => 'y'});
 

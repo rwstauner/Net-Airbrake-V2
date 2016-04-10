@@ -40,16 +40,26 @@ sub _make_vars {
 
   return ($parent => [
     {
-      var => [
-        map {
-          {
-            key     => $_,
-            content => $vars->{$_},
-          }
-        } keys %{ $vars }
-      ]
+      $self->_var_content($vars),
     }
   ]);
+}
+
+sub _var_content {
+  my ($self, $v) = @_;
+
+  return (content => $v) unless ref($v) eq 'HASH';
+
+  return (
+    var => [
+      map {
+        {
+          key     => $_,
+          $self->_var_content($v->{$_}),
+        }
+      } keys %$v
+    ]
+  );
 }
 
 =method convert_request

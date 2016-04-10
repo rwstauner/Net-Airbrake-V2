@@ -2,6 +2,8 @@ Revision history for Net-Airbrake-V2
 
 {{$NEXT}}
 
+  - Handle nested hash structures in vars (params, session, environment)
+
 0.02      2015-11-05T13:21:31Z
 
   - Require Net::Airbrake 0.02 for 'base_url'.
