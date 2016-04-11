@@ -180,6 +180,10 @@ sub _xml_encode {
     XMLDecl  => q[<?xml version="1.0" encoding="utf-8"?>],
   );
 
+  # decode_json should return a structure with character strings,
+  # and XML::Simple doesn't encode until writing to a file handle.
+  utf8::encode($xml);
+
   return $xml;
 }
 

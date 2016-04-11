@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use utf8;
 use lib 't/lib';
 use V2Tester;
 
@@ -27,6 +28,7 @@ subtest 'full' => sub {
             k2 => ['g', 'g'],
             'h<>3' => {
               'a b' => [1, {c => 7, '&' => qq[<hi there="you\x95"/>], n => undef}],
+              u => "❤",
             }
           }
         },
@@ -39,6 +41,9 @@ subtest 'full' => sub {
 
   my $tx = $test->{tx};
   #diag $test->{xml};
+
+  ok !utf8::is_utf8($test->{xml}), 'xml is bytes';
+  like $test->{xml}, qr/\xE2\x9D\xA4/, 'xml is utf8-encoded';
 
   tags_are($tx, error => {
     class   => 'CORE::die', # Net::Airbrake fabricates this.
@@ -65,6 +70,8 @@ subtest 'full' => sub {
   });
   vars_are($tx, 'params/var[@key="h1"]/var[@key="h<>3"]', {
     'a b' => '[1,{"&" => "<hi there=\"you\x{95}\"/>","c" => 7,"n" => undef}]',
+    # Test::XPath uses XML::LibXML which will result in a character string.
+    'u'   => decode_utf8("\xE2\x9D\xA4"),
   });
 
   vars_are($tx, 'session',  { 's1' => 's2' });

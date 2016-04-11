@@ -17,6 +17,7 @@ our @EXPORT = (
     not_present
     tags_are
     vars_are
+    decode_utf8
   ),
   @Test::More::EXPORT,
 );
@@ -134,6 +135,12 @@ XML
     xml      => $xml,
     tx       => $tx,
   };
+}
+
+sub decode_utf8 {
+  my $x = shift;
+  utf8::decode($x);
+  return $x;
 }
 
 1;
