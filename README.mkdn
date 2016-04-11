@@ -8,7 +8,7 @@ Net::Airbrake::V2 - Airbrake Notifier API V2 Client
 
 # VERSION
 
-version 0.02
+version 0.03
 
 # SYNOPSIS
 
@@ -35,6 +35,15 @@ As such the implementation is subject to change.
 See [Net::Airbrake](https://metacpan.org/pod/Net::Airbrake) for descriptions of methods and arguments.
 
 # METHODS
+
+## stringify\_ref
+
+The values of the the "var" hashes ("params", "session", and "environment")
+that are references (other than hashes) will stringified.
+
+This is currently done with `Data::Dumper`
+which is similar to the way the ruby gem dumps structures.
+The format is subject to change.
 
 ## convert\_request
 
@@ -106,7 +115,7 @@ progress on the request by the system.
 
 # AUTHOR
 
-Randy Stauner &lt;rwstauner@cpan.org>
+Randy Stauner <rwstauner@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
